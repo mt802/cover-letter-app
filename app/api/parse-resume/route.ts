@@ -14,10 +14,9 @@ export async function POST(req: NextRequest) {
 
   try {
     if (name.endsWith(".pdf")) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require("pdf-parse") as (b: Buffer) => Promise<{ text: string }>;
-      const data = await pdfParse(buffer);
-      return Response.json({ text: data.text.trim() });
+      const { extractText } = await import("unpdf");
+      const { text } = await extractText(new Uint8Array(buffer), { mergePages: true });
+      return Response.json({ text: text.trim() });
     }
 
     if (name.endsWith(".docx")) {
@@ -27,7 +26,8 @@ export async function POST(req: NextRequest) {
     }
 
     return Response.json({ error: "Unsupported file type. Use PDF or DOCX." }, { status: 400 });
-  } catch {
-    return Response.json({ error: "Failed to parse file." }, { status: 500 });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }
