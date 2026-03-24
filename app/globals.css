@@ -1,16 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --foreground: #111827;
-  --background: #f9fafb;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --ink: #111111;
+  --ink-mid: #444444;
+  --ink-light: #888888;
+  --rule: #d6d3cc;
+  --rule-light: #ebe8e2;
+  --paper: #fffef9;
+  --bg: #f5f4ef;
+  --accent: #c41230;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-textarea {
+/* Editorial input — bottom border only */
+.input-line {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 8px 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-line:focus {
+  border-bottom-color: var(--ink);
+}
+
+.input-line::placeholder {
+  color: var(--ink-light);
+}
+
+textarea.input-line {
   resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+/* Accent rule */
+.accent-rule {
+  display: block;
+  width: 2rem;
+  height: 2px;
+  background: var(--accent);
+  margin-bottom: 1rem;
 }

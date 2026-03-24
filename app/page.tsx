@@ -29,7 +29,7 @@ const DEFAULT_FORM: FormData = {
 };
 
 export default function Home() {
-  const [step, setStep] = useState(0); // 0–3: wizard steps; 4: output
+  const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(DEFAULT_FORM);
   const [letter, setLetter] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -53,9 +53,7 @@ export default function Home() {
           body: JSON.stringify({ ...form, existingLetter }),
         });
 
-        if (!res.ok) {
-          throw new Error(`Generation failed (${res.status})`);
-        }
+        if (!res.ok) throw new Error(`Generation failed (${res.status})`);
 
         const reader = res.body?.getReader();
         if (!reader) throw new Error("No stream");
@@ -66,8 +64,7 @@ export default function Home() {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          accumulated += chunk;
+          accumulated += decoder.decode(value, { stream: true });
           setLetter(accumulated);
         }
       } catch (e) {
@@ -80,10 +77,6 @@ export default function Home() {
     [form]
   );
 
-  const handleRegenerate = () => {
-    generate(letter);
-  };
-
   const handleStartOver = () => {
     setForm(DEFAULT_FORM);
     setLetter("");
@@ -92,79 +85,52 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            Cover Letter Generator
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Letters that actually sound like you wrote them.
+    <main className="min-h-screen" style={{ background: "var(--bg)" }}>
+      <div className="max-w-2xl mx-auto px-6 py-12 sm:py-16">
+
+        {/* Masthead */}
+        <header className="mb-12 pb-6" style={{ borderBottom: "1px solid var(--rule)" }}>
+          <p className="text-xs tracking-widest uppercase mb-3" style={{ color: "var(--ink-light)", fontFamily: "var(--font-sans)" }}>
+            Writing Tools
           </p>
-        </div>
+          <h1
+            className="text-4xl sm:text-5xl font-bold leading-tight mb-3"
+            style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}
+          >
+            Cover Letter
+          </h1>
+          <p style={{ color: "var(--ink-mid)", fontSize: "1rem", fontFamily: "var(--font-sans)" }}>
+            Letters that sound like you wrote them.
+          </p>
+        </header>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
-          {step < 4 && <StepIndicator current={step} />}
+        {error && (
+          <div className="mb-8 py-3 text-sm" style={{ borderLeft: "2px solid var(--accent)", paddingLeft: "1rem", color: "var(--accent)" }}>
+            {error}
+          </div>
+        )}
 
-          {error && (
-            <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
-              {error}
-            </div>
-          )}
+        {step < 4 && <StepIndicator current={step} />}
 
-          {step === 0 && (
-            <Step1Profile
-              form={form}
-              onChange={updateForm}
-              onNext={() => setStep(1)}
-            />
-          )}
+        {step === 0 && <Step1Profile form={form} onChange={updateForm} onNext={() => setStep(1)} />}
+        {step === 1 && <Step2JobDetails form={form} onChange={updateForm} onNext={() => setStep(2)} onBack={() => setStep(0)} />}
+        {step === 2 && <Step3VoiceTone form={form} onChange={updateForm} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
+        {step === 3 && <Step4Motivation form={form} onChange={updateForm} onGenerate={() => generate()} onBack={() => setStep(2)} />}
+        {step === 4 && (
+          <CoverLetterOutput
+            letter={letter}
+            isStreaming={isStreaming}
+            form={form}
+            onSliderChange={updateForm}
+            onRegenerate={() => generate(letter)}
+            onStartOver={handleStartOver}
+            onLetterEdit={(text) => setLetter(text)}
+          />
+        )}
 
-          {step === 1 && (
-            <Step2JobDetails
-              form={form}
-              onChange={updateForm}
-              onNext={() => setStep(2)}
-              onBack={() => setStep(0)}
-            />
-          )}
-
-          {step === 2 && (
-            <Step3VoiceTone
-              form={form}
-              onChange={updateForm}
-              onNext={() => setStep(3)}
-              onBack={() => setStep(1)}
-            />
-          )}
-
-          {step === 3 && (
-            <Step4Motivation
-              form={form}
-              onChange={updateForm}
-              onGenerate={() => generate()}
-              onBack={() => setStep(2)}
-            />
-          )}
-
-          {step === 4 && (
-            <CoverLetterOutput
-              letter={letter}
-              isStreaming={isStreaming}
-              form={form}
-              onSliderChange={updateForm}
-              onRegenerate={handleRegenerate}
-              onStartOver={handleStartOver}
-              onLetterEdit={(text) => setLetter(text)}
-            />
-          )}
-        </div>
-
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <footer className="mt-16 pt-6 text-xs" style={{ borderTop: "1px solid var(--rule-light)", color: "var(--ink-light)" }}>
           Powered by Claude — built to not sound like AI.
-        </p>
+        </footer>
       </div>
     </main>
   );

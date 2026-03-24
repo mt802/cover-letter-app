@@ -1,6 +1,6 @@
 "use client";
 
-const STEPS = ["Profile", "Job Details", "Voice & Tone", "Motivation"];
+const STEPS = ["Your profile", "The role", "Voice & tone", "Motivation"];
 
 interface StepIndicatorProps {
   current: number;
@@ -8,44 +8,27 @@ interface StepIndicatorProps {
 
 export default function StepIndicator({ current }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-8">
-      {STEPS.map((label, i) => (
-        <div key={i} className="flex items-center">
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-                i < current
-                  ? "bg-indigo-600 text-white"
-                  : i === current
-                  ? "bg-indigo-600 text-white ring-4 ring-indigo-100"
-                  : "bg-gray-200 text-gray-500"
-              }`}
-            >
-              {i < current ? (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                i + 1
-              )}
-            </div>
-            <span
-              className={`mt-1 text-xs whitespace-nowrap ${
-                i === current ? "text-indigo-600 font-medium" : "text-gray-400"
-              }`}
-            >
-              {label}
-            </span>
-          </div>
-          {i < STEPS.length - 1 && (
-            <div
-              className={`w-12 sm:w-20 h-0.5 mx-1 mb-4 transition-colors ${
-                i < current ? "bg-indigo-600" : "bg-gray-200"
-              }`}
-            />
-          )}
-        </div>
-      ))}
+    <div className="mb-10">
+      {/* Progress bar */}
+      <div className="w-full h-px mb-4" style={{ background: "var(--rule-light)" }}>
+        <div
+          className="h-px transition-all duration-500"
+          style={{
+            background: "var(--ink)",
+            width: `${((current + 1) / 4) * 100}%`,
+          }}
+        />
+      </div>
+
+      {/* Step label */}
+      <div className="flex items-baseline justify-between">
+        <p className="text-xs tracking-widest uppercase" style={{ color: "var(--ink-light)", fontFamily: "var(--font-sans)" }}>
+          Step {current + 1} of 4
+        </p>
+        <p className="text-sm font-medium" style={{ color: "var(--ink-mid)" }}>
+          {STEPS[current]}
+        </p>
+      </div>
     </div>
   );
 }
